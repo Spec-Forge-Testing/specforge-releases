@@ -4,6 +4,9 @@
 #   curl -fsSL https://raw.githubusercontent.com/Spec-Forge-Testing/specforge-releases/master/install.sh | sh
 #
 # Running it again updates to the latest release. SPECFORGE_VERSION=v0.1.0 pins one.
+#
+# The CLI's releases are tagged cli-v<version>: the desktop app publishes here too, under
+# v<version>, so "latest" may well be one of its releases and never the CLI's.
 set -eu
 
 REPO="Spec-Forge-Testing/specforge-releases"
@@ -23,14 +26,13 @@ command -v xz >/dev/null || fail "xz is required (sudo apt install xz-utils)"
 
 version="${SPECFORGE_VERSION:-}"
 if [ -z "$version" ]; then
-    # /releases/latest redirects to /releases/tag/<version>.
-    latest=$(curl -fsSLo /dev/null -w '%{url_effective}' "https://github.com/$REPO/releases/latest")
-    version="${latest##*/}"
-    case "$version" in
-        v*) ;;
-        *) fail "no release published yet" ;;
-    esac
+    # The highest cli-v* tag among the published releases.
+    version=$(curl -fsSL "https://api.github.com/repos/$REPO/releases?per_page=100" |
+        sed -n 's/.*"tag_name": *"cli-\(v[0-9][0-9.]*\)".*/\1/p' | sort -V | tail -n 1) ||
+        fail "could not list the releases"
+    [ -n "$version" ] || fail "no release published yet"
 fi
+version="v${version#v}"
 
 archive="specforge-$version-linux-x86_64.tar.xz"
 tmp=$(mktemp -d)
@@ -38,7 +40,7 @@ trap 'rm -rf "$tmp"' EXIT
 
 echo "Downloading Spec Forge $version..."
 curl -fSL --progress-bar -o "$tmp/$archive" \
-    "https://github.com/$REPO/releases/download/$version/$archive" ||
+    "https://github.com/$REPO/releases/download/cli-$version/$archive" ||
     fail "could not download $archive"
 tar -xJf "$tmp/$archive" -C "$tmp"
 

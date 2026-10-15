@@ -3,6 +3,9 @@
 #   powershell -c "irm https://raw.githubusercontent.com/Spec-Forge-Testing/specforge-releases/master/install.ps1 | iex"
 #
 # Running it again updates to the latest release. $env:SPECFORGE_VERSION = "v0.1.0" pins one.
+#
+# The CLI's releases are tagged cli-v<version>: the desktop app publishes here too, under
+# v<version>, so "latest" may well be one of its releases and never the CLI's.
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"  # Invoke-WebRequest is many times slower with it on
 
@@ -15,8 +18,15 @@ if (-not [Environment]::Is64BitOperatingSystem) {
 
 $Version = $env:SPECFORGE_VERSION
 if (-not $Version) {
-    $Version = (Invoke-RestMethod "https://api.github.com/repos/$Repo/releases/latest").tag_name
+    $Latest = Invoke-RestMethod "https://api.github.com/repos/$Repo/releases?per_page=100" |
+        ForEach-Object { $_ } |
+        Where-Object { $_.tag_name -match '^cli-v\d+(\.\d+)*$' } |
+        Sort-Object { [version]($_.tag_name -replace '^cli-v', '') } |
+        Select-Object -Last 1
+    if (-not $Latest) { throw "specforge: no release published yet" }
+    $Version = $Latest.tag_name -replace '^cli-', ''
 }
+$Version = "v" + ($Version -replace '^v', '')
 
 $Archive = "specforge-$Version-windows-x86_64.zip"
 $Tmp = Join-Path ([IO.Path]::GetTempPath()) ([Guid]::NewGuid())
@@ -24,7 +34,7 @@ New-Item -ItemType Directory -Path $Tmp | Out-Null
 
 try {
     Write-Host "Downloading Spec Forge $Version..."
-    Invoke-WebRequest "https://github.com/$Repo/releases/download/$Version/$Archive" -OutFile (Join-Path $Tmp $Archive)
+    Invoke-WebRequest "https://github.com/$Repo/releases/download/cli-$Version/$Archive" -OutFile (Join-Path $Tmp $Archive)
     Expand-Archive (Join-Path $Tmp $Archive) -DestinationPath $Tmp
 
     if (Test-Path $InstallDir) { Remove-Item $InstallDir -Recurse -Force }
