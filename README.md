@@ -21,7 +21,10 @@ powershell -c "irm https://raw.githubusercontent.com/Spec-Forge-Testing/specforg
 Both install for the current user, without `sudo` or administrator rights. Running the same
 command again updates to the latest release; set `SPECFORGE_VERSION` (e.g. `v0.1.0`) to
 install a specific one. Every release is also on the
-[Releases](https://github.com/Spec-Forge-Testing/specforge-releases/releases) page.
+[Releases](https://github.com/Spec-Forge-Testing/specforge-releases/releases) page: the CLI's
+are the ones tagged `cli-v…`, the others are the desktop app's.
+
+Once installed, `specforge update` updates it in place.
 
 ## Use
 
@@ -36,5 +39,9 @@ folder resumes it.
 
 ## Uninstall
 
-- **Linux:** `rm -rf ~/.local/share/specforge ~/.local/bin/specforge`
-- **Windows:** delete `%LOCALAPPDATA%\specforge` and remove it from your user `Path`.
+```sh
+specforge delete
+```
+
+It lists what it removes (the binary, its data, settings and cache) and asks first. Your
+projects' `specforge.toml` and `.specforge/` folders are left as they are.
