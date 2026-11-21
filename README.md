@@ -8,7 +8,7 @@ to use it, and each one carries its own core, so none of them needs Python:
 | --- | --- | --- |
 | [VS Code extension](#vs-code-extension) | inside the editor | [`vscode-v0.2.0`](https://github.com/Spec-Forge-Testing/specforge-releases/releases/tag/vscode-v0.2.0) |
 | [Desktop app](#desktop-app) | a window of its own | [`v0.2.0`](https://github.com/Spec-Forge-Testing/specforge-releases/releases/tag/v0.2.0) |
-| [CLI](#cli) | the terminal and CI | [`cli-v0.2.1`](https://github.com/Spec-Forge-Testing/specforge-releases/releases/tag/cli-v0.2.1) |
+| [CLI](#cli) | the terminal and CI | [`cli-v0.2.2`](https://github.com/Spec-Forge-Testing/specforge-releases/releases/tag/cli-v0.2.2) |
 
 Older versions are on the [Releases](https://github.com/Spec-Forge-Testing/specforge-releases/releases) page.
 
@@ -73,7 +73,7 @@ powershell -c "irm https://raw.githubusercontent.com/Spec-Forge-Testing/specforg
 Both install for the current user, without `sudo` or administrator rights. Running the same
 command again updates to the latest release; set `SPECFORGE_VERSION` (e.g. `v0.1.0`) to
 install a specific one. The files themselves are on the
-[`cli-v0.2.1` release](https://github.com/Spec-Forge-Testing/specforge-releases/releases/tag/cli-v0.2.1).
+[`cli-v0.2.2` release](https://github.com/Spec-Forge-Testing/specforge-releases/releases/tag/cli-v0.2.2).
 
 Once installed, `specforge update` updates it in place.
 
