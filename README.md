@@ -58,7 +58,7 @@ needs the `xattr` step above.
 
 ### Install
 
-**Linux** (Ubuntu 22.04+, Linux Mint 21+):
+**Linux** (Ubuntu 22.04+, Linux Mint 21+) and **macOS** (Apple Silicon and Intel):
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/Spec-Forge-Testing/specforge-releases/master/install.sh | sh

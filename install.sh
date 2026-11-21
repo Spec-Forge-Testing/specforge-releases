@@ -1,5 +1,6 @@
 #!/bin/sh
-# Installs Spec Forge for the current user on Linux (Ubuntu 22.04+, Mint 21+). No sudo.
+# Installs Spec Forge for the current user on Linux (Ubuntu 22.04+, Mint 21+) and macOS
+# (Apple Silicon and Intel). No sudo.
 #
 #   curl -fsSL https://raw.githubusercontent.com/Spec-Forge-Testing/specforge-releases/master/install.sh | sh
 #
@@ -18,11 +19,20 @@ fail() {
     exit 1
 }
 
-[ "$(uname -s)" = "Linux" ] || fail "this installer is for Linux; on Windows use install.ps1"
-[ "$(uname -m)" = "x86_64" ] || fail "only x86_64 is published, this machine is $(uname -m)"
+# The archive each machine needs, named as the release names it.
+system=$(uname -s)
+machine=$(uname -m)
+case "$system-$machine" in
+    Linux-x86_64) platform="linux-x86_64" ;;
+    Darwin-arm64) platform="macos-arm64" ;;
+    Darwin-x86_64) platform="macos-x86_64" ;;
+    Linux-* | Darwin-*) fail "no build is published for $system on $machine" ;;
+    *) fail "this installer is for Linux and macOS; on Windows use install.ps1" ;;
+esac
 command -v curl >/dev/null || fail "curl is required"
 command -v tar >/dev/null || fail "tar is required"
-command -v xz >/dev/null || fail "xz is required (sudo apt install xz-utils)"
+# macOS's tar reads xz on its own; GNU tar hands it to the xz program.
+[ "$system" = "Darwin" ] || command -v xz >/dev/null || fail "xz is required (sudo apt install xz-utils)"
 
 version="${SPECFORGE_VERSION:-}"
 if [ -z "$version" ]; then
@@ -34,19 +44,21 @@ if [ -z "$version" ]; then
 fi
 version="v${version#v}"
 
-archive="specforge-$version-linux-x86_64.tar.xz"
+archive="specforge-$version-$platform.tar.xz"
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 
 echo "Downloading Spec Forge $version..."
 curl -fSL --progress-bar -o "$tmp/$archive" \
     "https://github.com/$REPO/releases/download/cli-$version/$archive" ||
-    fail "could not download $archive"
+    fail "could not download $archive (does release $version have a build for $platform?)"
 tar -xJf "$tmp/$archive" -C "$tmp"
 
 rm -rf "$INSTALL_DIR"
 mkdir -p "$(dirname "$INSTALL_DIR")" "$BIN_DIR"
 mv "$tmp/specforge" "$INSTALL_DIR"
+# The macOS builds are not signed: without this, a quarantined download would be blocked.
+[ "$system" != "Darwin" ] || xattr -dr com.apple.quarantine "$INSTALL_DIR" 2>/dev/null || true
 ln -sf "$INSTALL_DIR/specforge" "$BIN_DIR/specforge"
 
 echo "Spec Forge $version installed in $INSTALL_DIR"
@@ -54,6 +66,10 @@ case ":$PATH:" in
     *":$BIN_DIR:"*) echo "Run 'specforge' inside your API's folder to start." ;;
     *)
         echo "Add $BIN_DIR to your PATH to run 'specforge', for example:"
-        echo "  echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.bashrc && . ~/.bashrc"
+        case "${SHELL:-}" in
+            */zsh) profile="~/.zshrc" ;;
+            *) profile="~/.bashrc" ;;
+        esac
+        echo "  echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> $profile && . $profile"
         ;;
 esac
