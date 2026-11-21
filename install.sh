@@ -37,9 +37,11 @@ command -v tar >/dev/null || fail "tar is required"
 version="${SPECFORGE_VERSION:-}"
 if [ -z "$version" ]; then
     # The highest cli-v* tag among the published releases.
-    version=$(curl -fsSL "https://api.github.com/repos/$REPO/releases?per_page=100" |
-        sed -n 's/.*"tag_name": *"cli-\(v[0-9][0-9.]*\)".*/\1/p' | sort -V | tail -n 1) ||
-        fail "could not list the releases"
+    # Fetched on its own: in a pipeline, a refused request would pass for an empty list.
+    releases=$(curl -fsSL "https://api.github.com/repos/$REPO/releases?per_page=100") ||
+        fail "could not list the releases (GitHub may be limiting this network); set SPECFORGE_VERSION, e.g. v0.2.2, to skip the lookup"
+    version=$(printf '%s\n' "$releases" |
+        sed -n 's/.*"tag_name": *"cli-\(v[0-9][0-9.]*\)".*/\1/p' | sort -V | tail -n 1)
     [ -n "$version" ] || fail "no release published yet"
 fi
 version="v${version#v}"
