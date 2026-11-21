@@ -21,12 +21,19 @@ Download the package for your system from the
 | --- | --- |
 | [`spec-forge-win32-x64-0.2.0.vsix`](https://github.com/Spec-Forge-Testing/specforge-releases/releases/download/vscode-v0.2.0/spec-forge-win32-x64-0.2.0.vsix) | Windows x64 |
 | [`spec-forge-linux-x64-0.2.0.vsix`](https://github.com/Spec-Forge-Testing/specforge-releases/releases/download/vscode-v0.2.0/spec-forge-linux-x64-0.2.0.vsix) | Linux x64 (glibc 2.28 or later) |
+| [`spec-forge-darwin-arm64-0.2.0.vsix`](https://github.com/Spec-Forge-Testing/specforge-releases/releases/download/vscode-v0.2.0/spec-forge-darwin-arm64-0.2.0.vsix) | macOS, Apple Silicon (M1 or later) |
+| [`spec-forge-darwin-x64-0.2.0.vsix`](https://github.com/Spec-Forge-Testing/specforge-releases/releases/download/vscode-v0.2.0/spec-forge-darwin-x64-0.2.0.vsix) | macOS, Intel |
+
+Pick the file that names your system: a package for another system installs but cannot start
+its core.
 
 1. In VS Code: `Extensions` → `⋯` → **Install from VSIX…** and pick the file.
 2. Open your project folder (the one with `specforge.toml`) as the workspace and run
    `Spec Forge: Open`.
 
-It needs VS Code 1.90 or later and a trusted workspace. There is no macOS package yet.
+It needs VS Code 1.90 or later and a trusted workspace. The core is not signed: if macOS
+blocks it, run `xattr -cr ~/.vscode/extensions/spec-forge.spec-forge-*` once and
+reload the window.
 
 ## Desktop app
 
@@ -37,11 +44,15 @@ Download the installer for your system from the
 | --- | --- |
 | [`Spec.Forge.Desktop_0.2.0_x64-setup.exe`](https://github.com/Spec-Forge-Testing/specforge-releases/releases/download/v0.2.0/Spec.Forge.Desktop_0.2.0_x64-setup.exe) | Windows x64 (the `.msi` installs the same app) |
 | [`Spec.Forge.Desktop_0.2.0_amd64.deb`](https://github.com/Spec-Forge-Testing/specforge-releases/releases/download/v0.2.0/Spec.Forge.Desktop_0.2.0_amd64.deb) | Ubuntu 22.04+, Linux Mint 21+, Debian 12+ |
+| [`Spec.Forge.Desktop_0.2.0_aarch64.dmg`](https://github.com/Spec-Forge-Testing/specforge-releases/releases/download/v0.2.0/Spec.Forge.Desktop_0.2.0_aarch64.dmg) | macOS, Apple Silicon (M1 or later) |
+| [`Spec.Forge.Desktop_0.2.0_x64.dmg`](https://github.com/Spec-Forge-Testing/specforge-releases/releases/download/v0.2.0/Spec.Forge.Desktop_0.2.0_x64.dmg) | macOS, Intel |
 
-On Linux, install it with `sudo apt install ./Spec.Forge.Desktop_0.2.0_amd64.deb`.
+On Linux, install it with `sudo apt install ./Spec.Forge.Desktop_0.2.0_amd64.deb`. On macOS,
+open the `.dmg`, drag the app to Applications and run
+`xattr -cr "/Applications/Spec Forge Desktop.app"` once.
 
-The installers are not signed: Windows may show a SmartScreen or antivirus warning. There
-is no macOS build yet.
+The installers are not signed: Windows may show a SmartScreen or antivirus warning, and macOS
+needs the `xattr` step above.
 
 ## CLI
 
